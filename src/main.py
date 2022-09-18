@@ -1,34 +1,30 @@
 import requests
 import logger
+import requestData
+import transformData
 
 def main():
-
     log = logger.Logger("main")
+    req_data = requestData.RequestData()
+    transform_data = transformData.TransformData()
 
-    log.info("---------LISTA MUNICIPIOS POR UF--------")
+    log.info("---------------------------------------------------------")
+    log.info("------------------Lista Municipios por UF----------------")
+    log.info("---------------------------------------------------------")
+    
 
-    cd_uf = input('Digite o código da Unidade da Federação: ')
+    result = req_data.get_requests(req_data.get_input_uf())
 
-    if len(cd_uf) != 2:
-        log.error('Quantidade de dígitos inválida!')
-        exit()
-
-    request = requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados/{}/municipios'.format(cd_uf))
-
-    municipios_por_uf = request.json()
-
-    if 'erro' not in municipios_por_uf:
-        log.info("Request success!")
-        log.info(municipios_por_uf)
-        
-    else:
-        log.error('{}: Codigo da UF inválido.'.format(cd_uf))
+    #log.info(result)
+    df = transform_data.create_dataframe(result)
+    transform_data.generate_csv(df)
 
     option = int(input('Deseja realizar uma nova consulta ?\n1. Sim\n2. Sair\n'))
     if option == 1:
         main()
     else:
         log.info('Exit...')
+
 
 if __name__ == '__main__':
 	main()
